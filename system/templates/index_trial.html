@@ -368,7 +368,8 @@
 
                             $.ajax({
                                 url: '/add_camera',
-                                data: {work:'its working'},
+                                contentType: "application/json",
+                                data: JSON.stringify({camURL: camURL, application: application, detectionMethod: dlibDetection, fpstweak: fpstweak}),
                                 type: 'POST',
                                 success: function(response) {
                                     console.log(response);

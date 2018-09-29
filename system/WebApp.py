@@ -163,20 +163,21 @@ def memory_usage():
 def add_camera():
     """Adds camera new camera to SurveillanceSystem's cameras array"""
     if request.method == 'POST':
-        # camURL = request.form.get('camURL')
-        # application = request.form.get('application')
-        # detectionMethod = request.form.get('detectionMethod')
-        # fpsTweak = request.form.get('fpstweak')
-        # with HomeSurveillance.camerasLock :
-        #     HomeSurveillance.add_camera(SurveillanceSystem.Camera.IPCamera(camURL,application,detectionMethod,fpsTweak))
-        #  data = {"camNum": len(HomeSurveillance.cameras) -1}
-        # data = {"camNum": 'are you working'}
-        # app.logger.info("Addding a new camera with url: ")
-        # app.logger.info(camURL)
-        # app.logger.info(fpsTweak)
+        data = request.get_json()
+
+        camURL = data['camURL']
+        application = data['application']
+        detectionMethod = data['detectionMethod']
+        fpsTweak = data['fpstweak']
+        with HomeSurveillance.camerasLock :
+            HomeSurveillance.add_camera(SurveillanceSystem.Camera.IPCamera(camURL,application,detectionMethod,fpsTweak))
+        # data = {"camNum": len(HomeSurveillance.cameras) -1}
+        app.logger.info("Addding a new camera with url: ")
+        app.logger.info(camURL)
+        app.logger.info(fpsTweak)
+
         # return jsonify(data)
-        print("can i do dis tooo?")
-        return json.dumps({'status':'OK','user':data.work,'pass':'password'});
+        # return json.dumps({'status':'OK','user':123,'pass':'password'});
     return render_template('trial.html')
 
 @app.route('/remove_camera', methods = ['GET','POST'])
