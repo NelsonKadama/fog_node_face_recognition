@@ -19,7 +19,7 @@
 from flask import Flask, render_template, Response, redirect, url_for, request, jsonify, send_file, session, g
 from flask.ext.uploads import UploadSet, configure_uploads, IMAGES
 import Camera
-from flask.ext.socketio import SocketIO, send, emit 
+from flask.ext.socketio import SocketIO, send, emit
 import SurveillanceSystem
 import json
 import logging
@@ -35,11 +35,11 @@ import psutil
 LOG_FILE = 'logs/WebApp.log'
 
 # Initialises system variables, this object is the heart of the application
-HomeSurveillance = SurveillanceSystem.SurveillanceSystem() 
+HomeSurveillance = SurveillanceSystem.SurveillanceSystem()
 # Threads used to continuously push data to the client
-alarmStateThread = threading.Thread() 
-facesUpdateThread = threading.Thread() 
-monitoringThread = threading.Thread() 
+alarmStateThread = threading.Thread()
+facesUpdateThread = threading.Thread()
+monitoringThread = threading.Thread()
 alarmStateThread.daemon = False
 facesUpdateThread.daemon = False
 monitoringThread.daemon = False
@@ -50,7 +50,7 @@ socketio = SocketIO(app)
 photos = UploadSet('photos', IMAGES)
 app.config['UPLOADED_PHOTOS_DEST'] = 'uploads/imgs'
 configure_uploads(app, photos)
-
+Apricot='work'
 
 @app.route('/', methods=['GET','POST'])
 def login():
@@ -61,14 +61,28 @@ def login():
             error = 'Invalid username or password. Please try again'
         else:
             session['user'] = request.form['username']
-            return redirect(url_for('home'))
+            return redirect(url_for('index_trial'))
 
     return render_template('login.html', error = error)
+
+@app.route('/trial', methods=['GET','POST'])
+def trial():
+    if request.method == 'POST':
+        session['camURL'] = request.form['camURL']
+        return render_template('trial.html', camURL=session['camURL'])
+    return render_template('trial.html')
+
+@app.route('/index_trial', methods=['GET','POST'])
+def index_trial():
+    if request.method == 'POST':
+        session['camURL'] = request.form['camURL']
+        return render_template('index_trial.html', camURL=session['camURL'])
+    return render_template('index_trial.html')
 
 @app.route('/home')
 def home():
     if g.user:
-        return render_template('trial.html')
+        return render_template('index.html')
     return redirect(url_for('login'))
 
 @app.before_request
@@ -77,6 +91,9 @@ def before_request():
     g.user = None
     if 'user' in session:
         g.user = session['user']
+    g.camURL = None
+    if 'camURL' in session:
+        g.camURL = session['camURL']
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
@@ -100,12 +117,12 @@ def upload():
 def gen(camera):
     """Can read processed frame or unprocessed frame.
     When streaming the processed frame with read_processed()
-    and setting the drawing variable in the SurveillanceSystem 
+    and setting the drawing variable in the SurveillanceSystem
     class, you can see all detection bounding boxes. This
     however slows down streaming and therefore read_jpg()
     is recommended"""
     while True:
-        frame = camera.read_processed()    # read_jpg()  # read_processed()    
+        frame = camera.read_processed()    # read_jpg()  # read_processed()
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')  # Builds 'jpeg' data with header and payload
 
@@ -120,7 +137,7 @@ def system_monitoring():
     while True:
         cameraProcessingFPS = []
         for camera in HomeSurveillance.cameras:
-    
+
             cameraProcessingFPS.append("{0:.2f}".format(camera.processingFPS))
             #print "FPS: " +str(camera.processingFPS) + " " + str(camera.streamingFPS)
             app.logger.info("FPS: " +str(camera.processingFPS) + " " + str(camera.streamingFPS))
@@ -134,29 +151,32 @@ def cpu_usage():
       cpu_load = psutil.cpu_percent(interval=1, percpu=False)
       #print "CPU Load: " + str(cpu_load)
       app.logger.info("CPU Load: " + str(cpu_load))
-      return cpu_load  
+      return cpu_load
 
 def memory_usage():
      mem_usage = psutil.virtual_memory().percent
      #print "System Memory Usage: " + str( mem_usage)
      app.logger.info("System Memory Usage: " + str( mem_usage))
-     return mem_usage 
+     return mem_usage
 
 @app.route('/add_camera', methods = ['GET','POST'])
 def add_camera():
     """Adds camera new camera to SurveillanceSystem's cameras array"""
-    if request.method == 'POST':  
-        camURL = request.form.get('camURL')
-        application = request.form.get('application')
-        detectionMethod = request.form.get('detectionMethod')
-        fpsTweak = request.form.get('fpstweak')
-        with HomeSurveillance.camerasLock :
-            HomeSurveillance.add_camera(SurveillanceSystem.Camera.IPCamera(camURL,application,detectionMethod,fpsTweak))
-        data = {"camNum": len(HomeSurveillance.cameras) -1}
-        app.logger.info("Addding a new camera with url: ")
-        app.logger.info(camURL)
-        app.logger.info(fpsTweak)
-        return jsonify(data)
+    if request.method == 'POST':
+        # camURL = request.form.get('camURL')
+        # application = request.form.get('application')
+        # detectionMethod = request.form.get('detectionMethod')
+        # fpsTweak = request.form.get('fpstweak')
+        # with HomeSurveillance.camerasLock :
+        #     HomeSurveillance.add_camera(SurveillanceSystem.Camera.IPCamera(camURL,application,detectionMethod,fpsTweak))
+        #  data = {"camNum": len(HomeSurveillance.cameras) -1}
+        # data = {"camNum": 'are you working'}
+        # app.logger.info("Addding a new camera with url: ")
+        # app.logger.info(camURL)
+        # app.logger.info(fpsTweak)
+        # return jsonify(data)
+        print("can i do dis tooo?")
+        return json.dumps({'status':'OK','user':data.work,'pass':'password'});
     return render_template('trial.html')
 
 @app.route('/remove_camera', methods = ['GET','POST'])
@@ -192,8 +212,8 @@ def create_alert():
 
         actions = {'push_alert': push_alert , 'email_alert':email_alert , 'trigger_alarm':trigger_alarm , 'notify_police':notify_police}
         with HomeSurveillance.alertsLock:
-            HomeSurveillance.alerts.append(SurveillanceSystem.Alert(alarmstate,camera, event, person, actions, emailAddress, int(confidence))) 
-        HomeSurveillance.alerts[-1].id 
+            HomeSurveillance.alerts.append(SurveillanceSystem.Alert(alarmstate,camera, event, person, actions, emailAddress, int(confidence)))
+        HomeSurveillance.alerts[-1].id
         data = {"alert_id": HomeSurveillance.alerts[-1].id, "alert_message": "Alert if " + HomeSurveillance.alerts[-1].alertString}
         return jsonify(data)
     return render_template('index.html')
@@ -207,7 +227,7 @@ def remove_alert():
                 if alert.id == alertID:
                     del HomeSurveillance.alerts[i]
                     break
-           
+
         data = {"alert_status": "removed"}
         return jsonify(data)
     return render_template('index.html')
@@ -238,15 +258,15 @@ def add_face():
         person_id = request.form.get('person_id')
         camNum = request.form.get('camera')
         img = None
-        
-        with HomeSurveillance.cameras[int(camNum)].peopleDictLock:  
-            try:  
-                img = HomeSurveillance.cameras[int(camNum)].people[person_id].face   # Gets face of person detected in cameras 
+
+        with HomeSurveillance.cameras[int(camNum)].peopleDictLock:
+            try:
+                img = HomeSurveillance.cameras[int(camNum)].people[person_id].face   # Gets face of person detected in cameras
                 predicted_name = HomeSurveillance.cameras[int(camNum)].people[person_id].identity
-                del HomeSurveillance.cameras[int(camNum)].people[person_id]    # Removes face from people detected in all cameras 
+                del HomeSurveillance.cameras[int(camNum)].people[person_id]    # Removes face from people detected in all cameras
             except Exception as e:
                 app.logger.error("ERROR could not add Face" + e)
- 
+
         #print "trust " + str(trust)
         app.logger.info("trust " + str(trust))
         if str(trust) == "false":
@@ -256,7 +276,7 @@ def add_face():
 
         systemData = {'camNum': len(HomeSurveillance.cameras) , 'people': HomeSurveillance.peopleDB, 'onConnect': False}
         socketio.emit('system_data', json.dumps(systemData) ,namespace='/surveillance')
-           
+
         data = {"face_added":  wriitenToDir}
         return jsonify(data)
     return render_template('index.html')
@@ -267,44 +287,44 @@ def retrain_classifier():
         app.logger.info("retrain button pushed. clearing event in surveillance objt and calling trainingEvent")
         HomeSurveillance.trainingEvent.clear() # Block processing threads
         retrained = HomeSurveillance.recogniser.trainClassifier()#calling the module in FaceRecogniser to start training
-        HomeSurveillance.trainingEvent.set() # Release processing threads       
+        HomeSurveillance.trainingEvent.set() # Release processing threads
         data = {"finished":  retrained}
         app.logger.info("Finished re-training")
         return jsonify(data)
     return render_template('index.html')
 
 @app.route('/get_faceimg/<name>')
-def get_faceimg(name):  
+def get_faceimg(name):
     key,camNum = name.split("_")
     try:
         with HomeSurveillance.cameras[int(camNum)].peopleDictLock:
-            img = HomeSurveillance.cameras[int(camNum)].people[key].thumbnail 
+            img = HomeSurveillance.cameras[int(camNum)].people[key].thumbnail
     except Exception as e:
         app.logger.error("Error " + e)
         img = ""
 
     if img == "":
-        return "http://www.character-education.org.uk/images/exec/speaker-placeholder.png"            
+        return "http://www.character-education.org.uk/images/exec/speaker-placeholder.png"
     return  Response((b'--frame\r\n'
                      b'Content-Type: image/jpeg\r\n\r\n' + img + b'\r\n\r\n'),
-                    mimetype='multipart/x-mixed-replace; boundary=frame') 
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 @app.route('/get_all_faceimgs/<name>')
-def get_faceimgs(name):  
+def get_faceimgs(name):
     key, camNum, imgNum = name.split("_")
     try:
         with HomeSurveillance.cameras[int(camNum)].peopleDictLock:
-            img = HomeSurveillance.cameras[int(camNum)].people[key].thumbnails[imgNum] 
+            img = HomeSurveillance.cameras[int(camNum)].people[key].thumbnails[imgNum]
     except Exception as e:
         app.logger.error("Error " + e)
         img = ""
 
     if img == "":
-        return "http://www.character-education.org.uk/images/exec/speaker-placeholder.png"            
+        return "http://www.character-education.org.uk/images/exec/speaker-placeholder.png"
     return  Response((b'--frame\r\n'
                      b'Content-Type: image/jpeg\r\n\r\n' + img + b'\r\n\r\n'),
-                    mimetype='multipart/x-mixed-replace; boundary=frame') 
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
 
 def update_faces():
     """Used to push all detected faces to client"""
@@ -315,7 +335,7 @@ def update_faces():
         with HomeSurveillance.camerasLock :
             for i, camera in enumerate(HomeSurveillance.cameras):
                 with HomeSurveillance.cameras[i].peopleDictLock:
-                    for key, person in camera.people.iteritems():  
+                    for key, person in camera.people.iteritems():
                         persondict = {'identity': key , 'confidence': person.confidence, 'camera': i, 'timeD':person.time, 'prediction': person.identity,'thumbnailNum': len(person.thumbnails)}
                         app.logger.info(persondict)
                         peopledata.append(persondict)
@@ -331,14 +351,14 @@ def alarm_state():
             time.sleep(3)
 
 
-@socketio.on('alarm_state_change', namespace='/surveillance') 
-def alarm_state_change():   
+@socketio.on('alarm_state_change', namespace='/surveillance')
+def alarm_state_change():
     HomeSurveillance.change_alarm_state()
 
-@socketio.on('panic', namespace='/surveillance') 
-def panic(): 
+@socketio.on('panic', namespace='/surveillance')
+def panic():
     HomeSurveillance.trigger_alarm()
-   
+
 
 @socketio.on('my event', namespace='/surveillance') # socketio used to receive websocket messages, Namespaces allow a cliet to open multiple connections to the server that are multiplexed on a single socket
 def test_message(message):   # Custom events deliver JSON payload
@@ -348,13 +368,13 @@ def test_message(message):   # Custom events deliver JSON payload
 def test_message(message):
     emit('my response', {'data': message['data']}, broadcast=True) # broadcast=True optional argument all clients connected to the namespace receive the message
 
-                   
-@socketio.on('connect', namespace='/surveillance') 
-def connect(): 
-    
-    # Need visibility of global thread object                
+
+@socketio.on('connect', namespace='/surveillance')
+def connect():
+
+    # Need visibility of global thread object
     global alarmStateThread
-    global facesUpdateThread 
+    global facesUpdateThread
     global monitoringThread
 
     #print "\n\nclient connected\n\n"
@@ -365,7 +385,7 @@ def connect():
         app.logger.info("Starting alarmStateThread")
         alarmStateThread = threading.Thread(name='alarmstate_process_thread_',target= alarm_state, args=())
         alarmStateThread.start()
-   
+
     if not facesUpdateThread.isAlive():
         #print "Starting facesUpdateThread"
         app.logger.info("Starting facesUpdateThread")
@@ -396,7 +416,7 @@ def connect():
             #print alertData
             app.logger.info(alertData)
             alerts.append(alertData)
-   
+
     systemData = {'camNum': len(HomeSurveillance.cameras) , 'people': HomeSurveillance.peopleDB, 'cameras': cameras, 'alerts': alerts, 'onConnect': True}
     socketio.emit('system_data', json.dumps(systemData) ,namespace='/surveillance')
 
@@ -418,5 +438,4 @@ if __name__ == '__main__':
      log = logging.getLogger('werkzeug')
      log.setLevel(logging.DEBUG)
      log.addHandler(handler)
-     socketio.run(app, host='0.0.0.0', debug=False, use_reloader=False) 
-    
+     socketio.run(app, host='0.0.0.0', debug=False, use_reloader=False)

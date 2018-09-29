@@ -1,11 +1,30 @@
 <html>
+<script type="text/javascript" charset="utf-8">
+var cameraURL = 'we here';
+function addCamera() {
+               //getting selected option from dropdowns
+               var cameraURL = document.getElementById("cameraURL").value;
+
+
+
+               $('#addcam').html('<i class="fa fa-spin fa-cog fa-3x fa-fw" style="font-size:12px;"></i> Adding Camera');
+
+               console.log("Front end logging:"  + camURL + " " + application + " " + detectionMethod + " FPS Tweak: " + fpstweak);
+
+
+
+   }
+   </script>
+
   <head>
     <title>Video Streaming Demonstration</title>
   </head>
   <body>
     <h1>Video Streaming Demonstration</h1>
-    <img id="bg" src="http://137.158.126.51:8081/">
+    <img id="bg" src={{camURL}}>
   </body>
+
+<p> The cam URL is: {{camURL}} from JS its: <script type="text/javascript">document.write(cameraURL)</script> </p>
 <section>
    <div class="box box-solid bg-green-gradient">
 	      <div class="box-header with-border">
@@ -28,7 +47,7 @@
 		          <div class="col-md-12">
 		              <div class="panel-body" id="system-cameras" >
 
-		              </div>     
+		              </div>
 		          </div>
 		          <!-- /.col -->
 		        </div>
@@ -40,26 +59,42 @@
 		      <!-- /.box-footer -->
 		    </div>
 		    <div class="col-md-4">
+          <div class="form-group">
+               <label>IP Camera URL</label>
+               <input class="form-control" id="cameraURL" value="hghg" placeholder="Enter stream URL">
+          </div>
+          <div class="btn-group pull-right" id = "createcamerabutton">
+                   <button type="button" id="addcam" onclick="addCamera()" class="btn btn-success btn-xs" >
+                       <i class="fa"></i> Add Camera
+                   </button>
+           </div>
 
-		    <div class="form-group">
-		         <label>IP Camera URL</label>
-		         <input class="form-control" id="camURL" value="" placeholder="Enter stream URL">
-		    </div>
-		     
-		 
+        <form  ction="" method="POST">
+           <div class="form-group has-feedback">
+        <!--      <input type="email" class="form-control" placeholder="Email"> -->
+              <input type="text" class="form-control" placeholder="Enter stream URL" name = "camURL" value = "{{request.form.camURL}}">
+             <span class="glyphicon glyphicon-user form-control-feedback"></span>
+           </div>
+
+           <div class="row">
+
+             <!-- /.col -->
+             <div class="col-xs-4">
+               <button type="submit" class="btn btn-primary btn-block btn-flat">Add Camera URL</button>
+               <!--  <input class="btn btn-primary btn-lg btn-block" type = "submit" value="Login"> -->
+             </div>
+             <!-- /.col -->
+           </div>
+         </form>
+
 	      </div>
 		<!-- /.box-body -->
-	      <div class="box-footer text-center">
-	       <div class="btn-group pull-right" id = "createcamerabutton">
-		        <button type="button" id="addcam" onclick="addCamera()" class="btn btn-success btn-xs" >
-		            <i class="fa"></i> Add Camera
-		        </button>
-		</div>
-	      </div>
+
 	<!-- /.box-footer -->
 	  </div>
 	<!--/.box -->
 	<!-- ================================================================================================================================== -->
 	</section>
-</html>
 
+
+</html>
