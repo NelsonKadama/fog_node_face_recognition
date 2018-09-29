@@ -31,6 +31,7 @@ import os
 import sys
 import cv2
 import psutil
+import pdb
 
 LOG_FILE = 'logs/WebApp.log'
 
@@ -61,28 +62,15 @@ def login():
             error = 'Invalid username or password. Please try again'
         else:
             session['user'] = request.form['username']
-            return redirect(url_for('index_trial'))
+            return redirect(url_for('home'))
 
     return render_template('login.html', error = error)
 
-@app.route('/trial', methods=['GET','POST'])
-def trial():
-    if request.method == 'POST':
-        session['camURL'] = request.form['camURL']
-        return render_template('trial.html', camURL=session['camURL'])
-    return render_template('trial.html')
-
-@app.route('/index_trial', methods=['GET','POST'])
-def index_trial():
-    if request.method == 'POST':
-        session['camURL'] = request.form['camURL']
-        return render_template('index_trial.html', camURL=session['camURL'])
-    return render_template('index_trial.html')
 
 @app.route('/home')
 def home():
     if g.user:
-        return render_template('index.html')
+        return render_template('index_wcam.html')
     return redirect(url_for('login'))
 
 @app.before_request
@@ -169,16 +157,20 @@ def add_camera():
         application = data['application']
         detectionMethod = data['detectionMethod']
         fpsTweak = data['fpstweak']
+        # pdb.set_trace()
+        print("add_camera() before camerasLock")
         with HomeSurveillance.camerasLock :
+            print("add_camera() in 'With' camerasLock")
             HomeSurveillance.add_camera(SurveillanceSystem.Camera.IPCamera(camURL,application,detectionMethod,fpsTweak))
         # data = {"camNum": len(HomeSurveillance.cameras) -1}
         app.logger.info("Addding a new camera with url: ")
         app.logger.info(camURL)
         app.logger.info(fpsTweak)
+        print("Makes it to end of add_camera()")
 
         # return jsonify(data)
         # return json.dumps({'status':'OK','user':123,'pass':'password'});
-    return render_template('trial.html')
+    return render_template('index_wcam.html')
 
 @app.route('/remove_camera', methods = ['GET','POST'])
 def remove_camera():
