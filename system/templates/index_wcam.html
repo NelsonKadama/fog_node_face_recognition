@@ -651,7 +651,7 @@
                            var e2 = document.getElementById("detectionMethod");
                            var detectionMethod = e2.options[e2.selectedIndex].value;
                            var fpstweak = document.getElementById("fpstweak");
-
+                           console.log(detectionMethod);
                            alertstyle = "alert-success";
                            camNum=0
 
@@ -840,10 +840,11 @@
 
                       $.ajax({
                                   type: "POST",
-                                  url: "{{ url_for('retrain_classifier') }}",
+                                  url: '/retrain_classifier',
                                   data : {},
                                   success: function(results) {
                                     console.log(results.finished);
+                                    print("retrain complete")
 
                                     $('#retrain').html('<i class="fa fa-refresh fa-fw"></i> Retrain Database');
 

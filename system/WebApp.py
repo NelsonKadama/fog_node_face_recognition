@@ -161,7 +161,8 @@ def add_camera():
         print("add_camera() before camerasLock")
         with HomeSurveillance.camerasLock :
             print("add_camera() in 'With' camerasLock")
-            HomeSurveillance.add_camera(SurveillanceSystem.Camera.IPCamera(camURL,application,detectionMethod,fpsTweak))
+
+            HomeSurveillance.add_camera(Camera.IPCamera(camURL,application,detectionMethod,fpsTweak))
         # data = {"camNum": len(HomeSurveillance.cameras) -1}
         app.logger.info("Addding a new camera with url: ")
         app.logger.info(camURL)
@@ -278,13 +279,17 @@ def add_face():
 def retrain_classifier():
     if request.method == 'POST':
         app.logger.info("retrain button pushed. clearing event in surveillance objt and calling trainingEvent")
+        print("retrain button pushed. clearing event in surveillance objt and calling trainingEvent")
         HomeSurveillance.trainingEvent.clear() # Block processing threads
+        print("cleared, calling trainClassifier")
         retrained = HomeSurveillance.recogniser.trainClassifier()#calling the module in FaceRecogniser to start training
+        print("calling trainingEvent.set")
         HomeSurveillance.trainingEvent.set() # Release processing threads
         data = {"finished":  retrained}
         app.logger.info("Finished re-training")
+        print("Finished re-training", data)
         return jsonify(data)
-    return render_template('index.html')
+    return render_template('index_wcam.html')
 
 @app.route('/get_faceimg/<name>')
 def get_faceimg(name):

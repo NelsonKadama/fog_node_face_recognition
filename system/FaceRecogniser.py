@@ -86,8 +86,10 @@ class FaceRecogniser(object):
         self.predictor = dlib.shape_predictor(args.dlibFacePredictor)
 
         logger.info("Opening classifier.pkl to load existing known faces db")
+        print("In FaceRecogniser, Opening classifier.pkl to load existing known faces db")
         with open("generated-embeddings/classifier.pkl", 'r') as f: # le = labels, clf = classifier
             (self.le, self.clf) = pickle.load(f) # Loads labels and classifier SVM or GMM
+        print("end of FaceRecogniser")
 
     def make_prediction(self,rgbFrame,bb):
         """The function uses the location of a face

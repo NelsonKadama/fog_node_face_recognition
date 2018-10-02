@@ -77,26 +77,26 @@ facecascade = cv2.CascadeClassifier("cascades/haarcascade_frontalface_alt2.xml")
 uppercascade = cv2.CascadeClassifier("cascades/haarcascade_upperbody.xml")
 eyecascade = cv2.CascadeClassifier("cascades/haarcascade_eye.xml")
 detector = dlib.get_frontal_face_detector()
-    
+
 def resize(frame):
     r = 640.0 / frame.shape[1]
     dim = (640, int(frame.shape[0] * r))
     # Resize frame to be processed
-    frame = cv2.resize(frame, dim, interpolation = cv2.INTER_AREA)    
-    return frame 
+    frame = cv2.resize(frame, dim, interpolation = cv2.INTER_AREA)
+    return frame
 
 def resize_mjpeg(frame):
     r = 320.0 / frame.shape[1]
     dim = (320, 200)#int(frame.shape[0] * r))
     # perform the actual resizing of the image and show it
-    frame = cv2.resize(frame, dim, interpolation = cv2.INTER_AREA)    
-    return frame  
+    frame = cv2.resize(frame, dim, interpolation = cv2.INTER_AREA)
+    return frame
 
 def crop(image, box, dlibRect = False):
 
     if dlibRect == False:
        x, y, w, h = box
-       return image[y: y + h, x: x + w] 
+       return image[y: y + h, x: x + w]
 
     return image[box.top():box.bottom(), box.left():box.right()]
 
@@ -121,16 +121,16 @@ def draw_rects_cv(img, rects, color=(0, 40, 255)):
         cv2.rectangle(overlay, (x, y), (x+w, y+h), color, 2)
         cv2.addWeighted(overlay, 0.5, output, 0.5, 0, output)
     return output
-   
+
 def draw_rects_dlib(img, rects, color = (0, 255, 255)):
     overlay = img.copy()
     output = img.copy()
-      
+
     for bb in rects:
         bl = (bb.left(), bb.bottom()) # (x, y)
         tr = (bb.right(), bb.top()) # (x+w,y+h)
         cv2.rectangle(overlay, bl, tr, color, thickness=2)
-        cv2.addWeighted(overlay, 0.5, output, 0.5, 0, output)       
+        cv2.addWeighted(overlay, 0.5, output, 0.5, 0, output)
     return output
 
 def draw_text(image, persondict):
@@ -140,7 +140,7 @@ def draw_text(image, persondict):
 
 def draw_rect(img,x,y,w,h, color=(0, 40, 255)):
     overlay = img.copy()
-    output = img.copy()   
+    output = img.copy()
     cv2.rectangle(overlay, (x, y), (x+w, y+h), color, 2)
     cv2.addWeighted(overlay, 0.5, output, 0.5, 0, output)
     return output
@@ -152,7 +152,7 @@ def draw_rects_dlib(img, rects):
         bl = (bb.left(), bb.bottom()) # (x, y)
         tr = (bb.right(), bb.top()) # (x+w,y+h)
         cv2.rectangle(overlay, bl, tr, color=(0, 255, 255), thickness=2)
-        cv2.addWeighted(overlay, 0.5, output, 0.5, 0, output)       
+        cv2.addWeighted(overlay, 0.5, output, 0.5, 0, output)
     return output
 
 def detect_upper_cascade(img):
@@ -171,11 +171,11 @@ def detect_people_hog(image):
                 break
         else:
             filtered_detections.append(r)
-    image = draw_rects_cv(image, filtered_detections)  
- 
+    image = draw_rects_cv(image, filtered_detections)
+
     return image
 
-def pre_processing(image):  
+def pre_processing(image):
      grey = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
      clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
      cl1 = clahe.apply(grey)
@@ -185,13 +185,13 @@ def pre_processing(image):
 def detect_people_cascade(image):
     image = rgb_pre_processing(image)
     rects = detect_cascade(image, uppercascade)
-    image = draw_rects_cv(image, rects,color=(0, 255, 0))  
+    image = draw_rects_cv(image, rects,color=(0, 255, 0))
     return image
 
 def detectopencv_face(image):
     image = pre_processing(image)
     rects = detect_cascadeface(image)
-  
+
     return rects
 
 def detectlight_face(image):
@@ -232,8 +232,6 @@ def convertImageToNumpyArray(img,height,width): # Numpy array used by dlib for i
 
 
 def writeToFile(filename,lineString): # Used for writing testing data to file
-       f = open(filename,"a") 
-       f.write(lineString + "\n")    
+       f = open(filename,"a")
+       f.write(lineString + "\n")
        f.close()
-
-
