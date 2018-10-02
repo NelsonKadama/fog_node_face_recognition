@@ -169,43 +169,53 @@ class FaceRecogniser(object):
         which is saved to a pickle file as a character stream"""
 
         logger.info("trainClassifier called")
-
+        print("trainClassifier called")
         path = fileDir + "/aligned-images/cache.t7"
         try:
             os.remove(path) # Remove cache from aligned images folder
         except:
             logger.info("Failed to remove cache.t7. Could be that it did not existed in the first place.")
+            print("Failed to remove cache.t7. Could be that it did not existed in the first place.")
             pass
 
         start = time.time()
         aligndlib.alignMain("training-images/","aligned-images/","outerEyesAndNose",args.dlibFacePredictor,args.imgDim)
         logger.info("Aligning images for training took {} seconds.".format(time.time() - start))
+        print("Aligning images for training took {} seconds.".format(time.time() - start))
         done = False
         start = time.time()
 
         done = self.generate_representation()
-
+        print("Done is ", done)
         if done is True:
             logger.info("Representation Generation (Classification Model) took {} seconds.".format(time.time() - start))
+            print("Representation Generation (Classification Model) took {} seconds.".format(time.time() - start))
             start = time.time()
             # Train Model
             self.train("generated-embeddings/","LinearSvm",-1)
             logger.info("Training took {} seconds.".format(time.time() - start))
+            print("Training took {} seconds.".format(time.time() - start))
         else:
             logger.info("Generate representation did not return True")
+            print("Generate representation did not return True")
+
+
 
 
     def generate_representation(self):
+        print("In generate_representation")
         logger.info("lua Directory:    " + luaDir)
         self.cmd = ['/usr/bin/env', 'th', os.path.join(luaDir, 'main.lua'),'-outDir',  "generated-embeddings/" , '-data', "aligned-images/"]
         logger.info("lua command:    " + str(self.cmd))
         if args.cuda:
             self.cmd.append('-cuda')
             logger.info("using -cuda")
+            print("using -cuda")
         self.p = Popen(self.cmd, stdin=PIPE, stdout=PIPE, bufsize=0)
         #our issue is here, torch probably crashes without giving much explanation.
         outs, errs = self.p.communicate() # Wait for process to exit - wait for subprocess to finish writing to files: labels.csv & reps.csv
         logger.info("Waiting for process to exit to finish writing labels and reps.csv" + str(outs) + " - " + str(errs))
+        print("Waiting for process to exit to finish writing labels and reps.csv" + str(outs) + " - " + str(errs))
 
         def exitHandler():
             if self.p.poll() is None:
@@ -213,19 +223,25 @@ class FaceRecogniser(object):
                 self.p.kill()
                 return False
         atexit.register(exitHandler)
+        print("end of generate_representation")
 
         return True
 
 
     def train(self,workDir,classifier,ldaDim):
+        print("in train ", os.getcwd() + '/generated-embeddings/reps.csv')
         fname = "{}labels.csv".format(workDir) #labels of faces
-        logger.info("Loading labels " + fname + " csv size: " +  str(os.path.getsize("/root/home_surveillance/system/generated-embeddings/reps.csv")))
+        print('fname ', fname )
+        logger.info("Loading labels " + fname + " csv size: " +  str(os.path.getsize(os.getcwd() + '/generated-embeddings/reps.csv')))
+        print("Loading labels " + fname + " csv size: " +  str(os.path.getsize(os.getcwd() + '/generated-embeddings/reps.csv')))
         if os.path.getsize(fname) > 0:
             logger.info(fname + " file is not empty")
+            print(fname + " file is not empty")
             labels = pd.read_csv(fname, header=None).as_matrix()[:, 1]
             logger.info(labels)
         else:
             logger.info(fname + " file is empty")
+            print(fname + " file is empty")
             labels = "1:aligned-images/dummy/1.png"  #creating a dummy string to start the process
         logger.debug(map(os.path.dirname, labels))
         logger.debug(map(os.path.split,map(os.path.dirname, labels)))
@@ -235,6 +251,7 @@ class FaceRecogniser(object):
         fname = "{}reps.csv".format(workDir) # Representations of faces
         fnametest = format(workDir) + "reps.csv"
         logger.info("Loading embedding " + fname + " csv size: " + str(os.path.getsize(fname)))
+        print("Loading embedding " + fname + " csv size: " + str(os.path.getsize(fname)))
         if os.path.getsize(fname) > 0:
             logger.info(fname + " file is not empty")
             embeddings = pd.read_csv(fname, header=None).as_matrix() # Get embeddings as a matrix from reps.csv
