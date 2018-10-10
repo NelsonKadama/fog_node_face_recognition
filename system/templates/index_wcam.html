@@ -958,8 +958,8 @@
                             //ajax post used to send alert data via json [ 'push_alert': push,'email_alert':email, 'trigger_alarm':triggerA, 'notify_police':notifyP]
                              $.ajax({
                                   type: "POST",
-                                  url: "{{ url_for('create_alert') }}",
-                                  data : {'camera': cam, 'eventdetail': eventd, 'alarmstate': alarm, 'person': pers, 'push_alert': push,'email_alert':email, 'trigger_alarm':triggerA,'notify_police':notifyP,'emailAddress':emailAddress,'confidence':confidence},
+                                  url: '/create_alert',
+                                  data: JSON.stringify({'camera': cam, 'eventdetail': eventd, 'alarmstate': alarm, 'person': pers, 'push_alert': push,'email_alert':email, 'trigger_alarm':triggerA,'notify_police':notifyP,'emailAddress':emailAddress,'confidence':confidence}),
                                   success: function(results) {
                                     console.log(results);
 
@@ -1032,7 +1032,7 @@
 
                     socket.on('people_detected', function(json) {
 
-                        console.log("Received peopledata in Loop" + json);
+                        console.log("Received peopledata in Loop" + JSON.parse(json));
                         var people = JSON.parse(json);
                         people_string = '';
 

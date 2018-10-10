@@ -968,11 +968,13 @@ class Alert(object):
     """Holds all the alert details and is continually checked by
     the alert monitoring thread"""
 
+    print("in create alert class")
+
     alert_count = 1
 
     def __init__(self,alarmState,camera, event, person, actions, emailAddress, confidence):
         logger.info( "alert_"+str(Alert.alert_count)+ " created")
-
+        print("initialising alert class")
 
         if  event == 'Motion':
             self.alertString = "Motion detected in camera " + camera
@@ -996,6 +998,7 @@ class Alert(object):
         self.eventTime = 0
 
         Alert.alert_count += 1
+        print("end of alert class init")
 
     def reinitialise(self):
         self.event_occurred = False

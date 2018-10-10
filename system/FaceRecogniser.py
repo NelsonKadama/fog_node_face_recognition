@@ -49,6 +49,7 @@ import numpy as np
 import pandas as pd
 import aligndlib
 import openface
+import pdb
 
 logger = logging.getLogger(__name__)
 
@@ -205,21 +206,28 @@ class FaceRecogniser(object):
     def generate_representation(self):
         print("In generate_representation")
         logger.info("lua Directory:    " + luaDir)
+        print("lua Directory:    " + luaDir)
         self.cmd = ['/usr/bin/env', 'th', os.path.join(luaDir, 'main.lua'),'-outDir',  "generated-embeddings/" , '-data', "aligned-images/"]
         logger.info("lua command:    " + str(self.cmd))
+        print("lua command:    " + str(self.cmd))
         if args.cuda:
             self.cmd.append('-cuda')
             logger.info("using -cuda")
             print("using -cuda")
+        print("self.p")
         self.p = Popen(self.cmd, stdin=PIPE, stdout=PIPE, bufsize=0)
         #our issue is here, torch probably crashes without giving much explanation.
-        outs, errs = self.p.communicate() # Wait for process to exit - wait for subprocess to finish writing to files: labels.csv & reps.csv
-        logger.info("Waiting for process to exit to finish writing labels and reps.csv" + str(outs) + " - " + str(errs))
-        print("Waiting for process to exit to finish writing labels and reps.csv" + str(outs) + " - " + str(errs))
+        # pdb.set_trace()
+        print("outs, errs")
+
+        # outs, errs = self.p.communicate(None) # Wait for process to exit - wait for subprocess to finish writing to files: labels.csv & reps.csv
+        # logger.info("Waiting for process to exit to finish writing labels and reps.csv" + str(outs) + " - " + str(errs))
+        # print("Waiting for process to exit to finish writing labels and reps.csv" + str(outs) + " - " + str(errs))
 
         def exitHandler():
             if self.p.poll() is None:
                 logger.info("<=Something went Wrong===>")
+                print("<=Something went Wrong in generate_representation===>")
                 self.p.kill()
                 return False
         atexit.register(exitHandler)
@@ -259,28 +267,38 @@ class FaceRecogniser(object):
             logger.info(fname + " file is empty")
             embeddings = np.zeros((2,150)) #creating an empty array since csv is empty
 
+        print("read_csv complete ln270")
         self.le = LabelEncoder().fit(labels) # LabelEncoder is a utility class to help normalize labels such that they contain only values between 0 and n_classes-1
         # Fits labels to model
         labelsNum = self.le.transform(labels)
         nClasses = len(self.le.classes_)
         logger.info("Training for {} classes.".format(nClasses))
+        print("Training for {} classes.".format(nClasses))
+        print("checking classifier ", classifier)
 
         if classifier == 'LinearSvm':
             self.clf = SVC(C=1, kernel='linear', probability=True)
         elif classifier == 'GMM':
             self.clf = GMM(n_components=nClasses)
 
+        print("checking ldaDim ", ldaDim)
         if ldaDim > 0:
             clf_final =  self.clf
             self.clf = Pipeline([('lda', LDA(n_components=ldaDim)),
                 ('clf', clf_final)])
 
+        print("linking embeddings to labels ln290")
+        # pdb.set_trace()
         self.clf.fit(embeddings, labelsNum) #link embeddings to labels
+        print("embeddings linked to labels")
 
         fName = "{}/classifier.pkl".format(workDir)
         logger.info("Saving classifier to '{}'".format(fName))
+        print("Saving classifier to '{}'".format(fName))
         with open(fName, 'w') as f:
             pickle.dump((self.le,  self.clf), f) # Creates character stream and writes to file to use for recognition
+
+        print('End of TRAIN')
 
     def getSquaredl2Distance(self,rep1,rep2):
         """Returns number between 0-4, Openface calculated the mean between

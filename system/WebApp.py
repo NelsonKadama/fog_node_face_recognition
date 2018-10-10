@@ -190,6 +190,7 @@ def remove_camera():
 @app.route('/create_alert', methods = ['GET','POST'])
 def create_alert():
     if request.method == 'POST':
+        print("in create alert")
         camera = request.form.get('camera')
         emailAddress = request.form.get('emailAddress')
         event = request.form.get('eventdetail')
@@ -200,17 +201,23 @@ def create_alert():
         trigger_alarm = request.form.get('trigger_alarm')
         notify_police = request.form.get('notify_police')
         confidence = request.form.get('confidence')
-
+        print("in create alert, info received from request form")
+        pdb.set_trace()
         #print "unknownconfidence: " + confidence
         app.logger.info("unknownconfidence: " + confidence)
+        print("unknownconfidence: " + confidence)
 
         actions = {'push_alert': push_alert , 'email_alert':email_alert , 'trigger_alarm':trigger_alarm , 'notify_police':notify_police}
+        print("in create alert, before 'with HomeSurveillance.alertsLock'")
         with HomeSurveillance.alertsLock:
+            print("in create alert, calling alerts.append")
             HomeSurveillance.alerts.append(SurveillanceSystem.Alert(alarmstate,camera, event, person, actions, emailAddress, int(confidence)))
+        print("in create alert, after HomeSurveillance.alertsLock")
         HomeSurveillance.alerts[-1].id
         data = {"alert_id": HomeSurveillance.alerts[-1].id, "alert_message": "Alert if " + HomeSurveillance.alerts[-1].alertString}
+        print("end of create alert")
         return jsonify(data)
-    return render_template('index.html')
+    return render_template('index_wcam.html')
 
 @app.route('/remove_alert', methods = ['GET','POST'])
 def remove_alert():

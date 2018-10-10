@@ -87,13 +87,14 @@ class IPCamera(object):
         self.captureEvent = threading.Event()
         self.captureEvent.set()
         self.peopleDictLock = threading.Lock() # Used to block concurrent access to people dictionary
-        pdb.set_trace()
-        self.video = cv2.VideoCapture('camURL') # VideoCapture object used to capture frames from IP camera
+        # pdb.set_trace()
+        self.video = cv2.VideoCapture('videoplayback_faces.mp4') # VideoCapture object used to capture frames from IP camera
         logger.info("We are opening the video feed.")
         self.url = camURL
         if not self.video.isOpened():
             self.video.open()
         logger.info("Video feed open.")
+        print("Video feed open.")
         self.dump_video_info()  # logging every specs of the video feed
         # Start a thread to continuously capture frames.
         # The capture thread ensures the frames being processed are up to date and are not old
@@ -102,7 +103,7 @@ class IPCamera(object):
         self.captureThread.daemon = True
         self.captureThread.start()
         self.captureThread.stop = False
-        pdb.set_trace()
+        # pdb.set_trace()
         print("We in IP Camera, end of init")
 
     def __del__(self):
