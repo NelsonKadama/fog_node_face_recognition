@@ -191,23 +191,26 @@ def remove_camera():
 def create_alert():
     if request.method == 'POST':
         print("in create alert")
-        camera = request.form.get('camera')
-        emailAddress = request.form.get('emailAddress')
-        event = request.form.get('eventdetail')
-        alarmstate = request.form.get('alarmstate')
-        person = request.form.get('person')
-        push_alert = request.form.get('push_alert')
-        email_alert = request.form.get('email_alert')
-        trigger_alarm = request.form.get('trigger_alarm')
-        notify_police = request.form.get('notify_police')
-        confidence = request.form.get('confidence')
+        data = request.get_json()
+        # pdb.set_trace()
+        camera = data['camera']
+        emailAddress = data['emailAddress']
+        event = data['eventdetail']
+        alarmstate = data['alarmstate']
+        person = data['person']
+        push_alert = data['push_alert']
+        email_alert = data['email_alert']
+        trigger_alarm = data['trigger_alarm']
+        notify_police = data['notify_police']
+        confidence = data['confidence']
         print("in create alert, info received from request form")
-        pdb.set_trace()
+        # pdb.set_trace()
         #print "unknownconfidence: " + confidence
         app.logger.info("unknownconfidence: " + confidence)
         print("unknownconfidence: " + confidence)
 
         actions = {'push_alert': push_alert , 'email_alert':email_alert , 'trigger_alarm':trigger_alarm , 'notify_police':notify_police}
+        jsonify(actions)
         print("in create alert, before 'with HomeSurveillance.alertsLock'")
         with HomeSurveillance.alertsLock:
             print("in create alert, calling alerts.append")

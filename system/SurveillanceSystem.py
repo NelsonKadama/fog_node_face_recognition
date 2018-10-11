@@ -60,6 +60,7 @@ import ImageUtils
 import random
 import psutil
 import math
+import pdb
 
 # Get paths for models
 # //////////////////////////////////////////////////////////////////////////////////////////////
@@ -768,17 +769,21 @@ class SurveillanceSystem(object):
 
    def take_action(self,alert):
         """Sends email alert and/or triggers the alarm"""
-
-        logger.info( "Taking action: ==" + alert.actions)
+        # pdb.set_trace()
+        logger.info( "Taking action: == ", alert.actions)
+        print( "Taking action: == ", alert.actions)
         if alert.action_taken == False: # Only take action if alert hasn't accured - Alerts reinitialise every 5 min for now
             alert.eventTime = time.time()
-            if alert.actions['email_alert'] == 'true':
+            if alert.actions['email_alert'] == True:
                 logger.info( "email notification being sent")
+                print( "email notification being sent")
                 self.send_email_notification_alert(alert)
-            if alert.actions['trigger_alarm'] == 'true':
+            if alert.actions['trigger_alarm'] == True:
                 logger.info( "triggering alarm1")
+                print( "triggering alarm1")
                 self.trigger_alarm()
                 logger.info( "alarm1 triggered")
+                print( "alarm1 triggered")
             alert.action_taken = True
 
    def send_email_notification_alert(self,alert):
@@ -791,20 +796,20 @@ class SurveillanceSystem(object):
 
       msg['From'] = fromaddr
       msg['To'] = toaddr
-      msg['Subject'] = "HOME SURVEILLANCE"
+      msg['Subject'] = "FOG SURVEILLANCE"
 
       body = "NOTIFICATION ALERT:" +  alert.alertString + ""
 
       msg.attach(MIMEText(body, 'plain'))
 
-      filename = "image.png"
-      attachment = open("notification/image.png", "rb")
-      part = MIMEBase('application', 'octet-stream')
-      part.set_payload((attachment).read())
-      encoders.encode_base64(part)
-      part.add_header('Content-Disposition', "attachment; filename= %s" % filename)
-
-      msg.attach(part)
+      # filename = "image.png"
+      # attachment = open("notification/image.png", "rb")
+      # part = MIMEBase('application', 'octet-stream')
+      # part.set_payload((attachment).read())
+      # encoders.encode_base64(part)
+      # part.add_header('Content-Disposition', "attachment; filename= %s" % filename)
+      #
+      # msg.attach(part)
 
       server = smtplib.SMTP('smtp.gmail.com', 587)
       server.starttls()
@@ -975,6 +980,7 @@ class Alert(object):
     def __init__(self,alarmState,camera, event, person, actions, emailAddress, confidence):
         logger.info( "alert_"+str(Alert.alert_count)+ " created")
         print("initialising alert class")
+
 
         if  event == 'Motion':
             self.alertString = "Motion detected in camera " + camera

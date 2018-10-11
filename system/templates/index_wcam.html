@@ -458,49 +458,7 @@
 
          <section class="col-lg-3 connectedSortable">
 
-             <div class="box box-solid bg-red-gradient">
-                <div class="box-header">
-                  <i class="fa "></i>
-
-                  <h3 class="box-title">Control Panel</h3>
-                  <!-- tools box -->
-                  <div class="pull-right box-tools">
-                    <!-- button with a dropdown -->
-                      <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-                      </button>
-                  </div>
-                  <!-- /. tools -->
-                </div>
-                <!-- /.box-header -->
-                <div class="box-body ">
-                            <div class="row">
-                                <!-- <div class="col-md-1 col-sm-1 col-xs-1">
-
-                                </div>  -->
-                                <div class="col-md-3 col-sm-6 col-xs-6">
-
-                                    <div><i class="fa  fa-lock fa-5x"></i></div>
-
-                                </div>
-                                 <div class="col-md-8 col-sm-6 col-xs-6">
-                                <div>
-                                        <span >
-                                        <span class="info-box-text"> Alarm Status:  <strong id="alarmStatus"></strong></span>
-                                        <button type="button " id="changestate" onclick = "changeAlarmState()" class="btn btn-warning ">Arm/Disarm</button>
-                                        <button type="button " id="panic" onclick = "panic()"  class="btn btn-danger ">Panic</button>
-                                       </span >
-
-                                   </div>
-                               </div>
-                        </div>
-                        <!-- /.info-box-content -->
-                      <!-- </div> -->
-                      <!-- /.info-box -->
-                    <!-- </div> -->
-                </div>
-                  <!-- /.row -->
-
-              </div>
+          
 
 
              <div class="box box-solid bg-light-blue-gradient">
@@ -958,6 +916,7 @@
                             //ajax post used to send alert data via json [ 'push_alert': push,'email_alert':email, 'trigger_alarm':triggerA, 'notify_police':notifyP]
                              $.ajax({
                                   type: "POST",
+                                  contentType: "application/json",
                                   url: '/create_alert',
                                   data: JSON.stringify({'camera': cam, 'eventdetail': eventd, 'alarmstate': alarm, 'person': pers, 'push_alert': push,'email_alert':email, 'trigger_alarm':triggerA,'notify_police':notifyP,'emailAddress':emailAddress,'confidence':confidence}),
                                   success: function(results) {
