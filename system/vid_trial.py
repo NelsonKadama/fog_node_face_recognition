@@ -4,12 +4,12 @@ import pdb
 
 # Open a sample video available in sample-videos
 # pdb.set_trace()
-vcap = cv2.VideoCapture('http://137.158.126.51:8081/')
+vcap = cv2.VideoCapture('http://137.158.127.114:8082/testing')
 # pdb.set_trace()
 # vcap = cv2.VideoCapture('ColdFusionBookUpdates.mp4')
 # pdb.set_trace()
 if not vcap.isOpened():
-    vcap.open('http://137.158.126.51:8081/')
+    vcap.open('http://137.158.127.114:8082/testing')
 
 
 
